@@ -1,95 +1,105 @@
 <?php
-include 'db_connect.php'; // Include your database connection file
+include 'db_connect.php';
 
-// Function to sanitize file name
 function sanitizeFileName($filename) {
-    // Remove any characters that are not alphanumeric, underscores, hyphens, or dots
     return preg_replace('/[^A-Za-z0-9_\-.]/', '_', $filename);
 }
 
-// Check if the form was submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Retrieve form data
-    $author_id = $_POST['authorid'];
-    $author_name = $_POST['author_name'];
-    $title = $_POST['title'];
-    $meta_title = $_POST['meta_title'];
-    $summary = $_POST['summary'];
-    $content = $_POST['content'];
-    $content_1 = $_POST['content_1'];
-    $content_2 = $_POST['content_2'];
-    $content_3 = $_POST['content_3'];
-    $publication_date = $_POST['publication_date'];
-    $category = $_POST['category'];
-    $tags = $_POST['tags'];
-    $status = $_POST['status'];
-    $comments_count = $_POST['comments_count'];
-    $meta_description = $_POST['meta_description'];
-    $meta_keywords = $_POST['meta_keywords'];
-    $canonical_url = $_POST['canonical_url'];
-    $subheading_1 = $_POST['subheading_1'];
-    $subheading_2 = $_POST['subheading_2'];
-    $subheading_3 = $_POST['subheading_3'];
-    $access_key = $_POST['access_key'];
+    $author = $_POST['blog_author'];
+    $blog_title = $_POST['blog_title'];
+    $blog_subtitle = $_POST['blog_subtitle'];
+    $blog_description = $_POST['blog_description'];
+    $status = isset($_POST['status']) ? 1 : 0; 
+    $content_titles = isset($_POST['content_title']) ? $_POST['content_title'] : []; 
+    $content_descriptions = isset($_POST['content_description']) ? $_POST['content_description'] : [];
+    $sub_content_titles = isset($_POST['sub_content_title']) ? $_POST['sub_content_title'] : [];
+    $sub_content_descriptions = isset($_POST['sub_content_description']) ? $_POST['sub_content_description'] : [];
 
-    // Define the target directory for file uploads
-    $target_dir = "uploads/";
+    $blog_thumbnail_url = null;
 
-    // Ensure the target directory exists
-    if (!file_exists($target_dir)) {
-        mkdir($target_dir, 0777, true);
-    }
+    // Handle file upload
+    if (isset($_FILES['new_blog_thumbnail']) && $_FILES['new_blog_thumbnail']['error'] == UPLOAD_ERR_OK) {
+        $upload_dir = 'uploads/' . sanitizeFileName($blog_title) . '/'; // Create a directory named after the blog title
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0777, true); // Create directory if it doesn't exist
+        }
+        $file_tmp = $_FILES['new_blog_thumbnail']['tmp_name'];
+        $file_name = sanitizeFileName($blog_title) . '_' . basename($_FILES['new_blog_thumbnail']['name']);
+        $file_path = $upload_dir . $file_name;
 
-    // Process the main image
-    $main_image_url = '';
-    if (!empty($_FILES['main_image_file']['name'])) {
-        $main_image_name = sanitizeFileName($title) . "_main." . pathinfo($_FILES['main_image_file']['name'], PATHINFO_EXTENSION);
-        $main_image_path = $target_dir . $main_image_name;
-        if (move_uploaded_file($_FILES['main_image_file']['tmp_name'], $main_image_path)) {
-            $main_image_url = $main_image_path;
+        if (move_uploaded_file($file_tmp, $file_path)) {
+            $blog_thumbnail_url = $file_path;
+        } else {
+            die("Error uploading file.");
         }
     }
 
-    // Process image/video 1
-    $image_video_1_url = '';
-    if (!empty($_FILES['image_video_1_file']['name'])) {
-        $image_video_1_name = sanitizeFileName($title) . "_1." . pathinfo($_FILES['image_video_1_file']['name'], PATHINFO_EXTENSION);
-        $image_video_1_path = $target_dir . $image_video_1_name;
-        if (move_uploaded_file($_FILES['image_video_1_file']['tmp_name'], $image_video_1_path)) {
-            $image_video_1_url = $image_video_1_path;
-        }
-    }
-
-    // Process image/video 2
-    $image_video_2_url = '';
-    if (!empty($_FILES['image_video_2_file']['name'])) {
-        $image_video_2_name = sanitizeFileName($title) . "_2." . pathinfo($_FILES['image_video_2_file']['name'], PATHINFO_EXTENSION);
-        $image_video_2_path = $target_dir . $image_video_2_name;
-        if (move_uploaded_file($_FILES['image_video_2_file']['tmp_name'], $image_video_2_path)) {
-            $image_video_2_url = $image_video_2_path;
-        }
-    }
-
-    // Process image/video 3
-    $image_video_3_url = '';
-    if (!empty($_FILES['image_video_3_file']['name'])) {
-        $image_video_3_name = sanitizeFileName($title) . "_3." . pathinfo($_FILES['image_video_3_file']['name'], PATHINFO_EXTENSION);
-        $image_video_3_path = $target_dir . $image_video_3_name;
-        if (move_uploaded_file($_FILES['image_video_3_file']['tmp_name'], $image_video_3_path)) {
-            $image_video_3_url = $image_video_3_path;
-        }
-    }
-
-    $sql = "INSERT INTO posts (author_id, author_name, title, meta_title, summary, content, content_1, content_2, content_3, publication_date, category, tags, status, comments_count, meta_description, meta_keywords, canonical_url, subheading_1, subheading_2, subheading_3, main_image_url, image_video_1_url, image_video_2_url, image_video_3_url) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
+    // Insert blog details into the database
+    $sql = "INSERT INTO Blog (blog_title, blog_subtitle, blog_description, status, author, blog_thumbnail_url) 
+            VALUES (?, ?, ?, ?, ?, ?)";
+    
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isssssssssssssssssssssss", $author_id, $author_name, $title, $meta_title, $summary, $content, $content_1, $content_2, $content_3, $publication_date, $category, $tags, $status, $comments_count, $meta_description, $meta_keywords, $canonical_url, $subheading_1, $subheading_2, $subheading_3, $main_image_url, $image_video_1_url, $image_video_2_url, $image_video_3_url);
+    if (!$stmt) {
+        die("Prepare failed: " . $conn->error);
+    }
+
+    $stmt->bind_param("sssiss", $blog_title, $blog_subtitle, $blog_description, $status, $author, $blog_thumbnail_url);
 
     if ($stmt->execute()) {
-        echo "Blog post published successfully!";
+        $blog_id = $stmt->insert_id;
+
+        // Insert content details into the database
+        if (!empty($content_titles) && !empty($content_descriptions)) {
+            $sql_content = "INSERT INTO Content (blog_id, content_title, content_description) 
+                            VALUES (?, ?, ?)";
+            
+            $stmt_content = $conn->prepare($sql_content);
+            if (!$stmt_content) {
+                die("Prepare failed: " . $conn->error);
+            }
+
+            foreach ($content_titles as $index => $content_title) {
+                $content_description = $content_descriptions[$index];
+
+                $stmt_content->bind_param("iss", $blog_id, $content_title, $content_description);
+
+                if ($stmt_content->execute()) {
+                    $content_id = $stmt_content->insert_id;
+
+                    // Insert subcontent details into the database
+                    if (!empty($sub_content_titles[$index]) && !empty($sub_content_descriptions[$index])) {
+                        $sql_subcontent = "INSERT INTO SubContent (content_id, sub_content_title, sub_content_description) 
+                                           VALUES (?, ?, ?)";
+                        
+                        $stmt_subcontent = $conn->prepare($sql_subcontent);
+                        if (!$stmt_subcontent) {
+                            die("Prepare failed: " . $conn->error);
+                        }
+
+                        foreach ($sub_content_titles[$index] as $sub_index => $sub_content_title) {
+                            $sub_content_description = $sub_content_descriptions[$index][$sub_index];
+
+                            $stmt_subcontent->bind_param("iss", $content_id, $sub_content_title, $sub_content_description);
+
+                            if (!$stmt_subcontent->execute()) {
+                                echo "Error inserting subcontent: " . $stmt_subcontent->error;
+                            }
+                        }
+
+                        $stmt_subcontent->close();
+                    }
+                } else {
+                    echo "Error inserting content: " . $stmt_content->error;
+                }
+            }
+
+            $stmt_content->close();
+        }
+
+        echo "Blog, content, and subcontent published successfully!";
     } else {
-        echo "Error: " . $stmt->error;
+        echo "Error inserting blog: " . $stmt->error;
     }
 
     $stmt->close();

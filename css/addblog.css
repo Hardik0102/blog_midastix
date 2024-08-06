@@ -1,0 +1,137 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+}
+
+form {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 2em;
+    margin-bottom: 0.5em;
+    color: #333;
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+input[type="text"], 
+textarea,
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+button, input[type="submit"] {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+button:hover, 
+input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+.content-field {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f9f9f9;
+    position: relative;
+}
+
+.content-field h3 {
+    margin-top: 0;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.content-field .delete-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #dc3545;
+    border: solid rgb(205, 20, 20);
+    color: #fff;
+    padding: 5px;
+    border-radius: 50%;
+    cursor: pointer;
+    
+    font-size: 0.8em;
+}
+
+.content-field .delete-button:hover {
+    background: #c82333;
+}
+
+#drop-zone {
+    width: 70%;
+    padding: 20px;
+    border: 2px dashed #0000009f;
+    border-radius: 4px;
+    text-align: center;
+    color: #030c00d6;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+#drop-zone.dragover {
+    background-color: #e6f7ff;
+}
+
+#image-preview {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#image-preview img {
+    max-width: 150px;
+    height: auto;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+#image-preview .delete-button {
+    background: #dc3545;
+    border: none;
+    color: #fff;
+    padding: 5px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.8em;
+    margin-top: 10px;
+}
+
+#image-preview .delete-button:hover {
+    background: #c82333;
+}

@@ -7,12 +7,12 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
     $key = $_GET['key'];
 
     if ($key === ACCESS_KEY) {
-        
+            
         $sql = "DELETE FROM posts WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
-
+        
         if ($stmt->affected_rows > 0) {
             echo "Blog entry deleted successfully.";
         } else {
